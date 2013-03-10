@@ -11,26 +11,31 @@ namespace PolyglotDemo.Data
 {
     public class RedisDataContext
     {
-        
-        protected RedisClient GetDatabase()
+        RedisClient dataContext;
+
+        public RedisDataContext()
         {
-            return new RedisClient("localhost");
+            dataContext = new RedisClient("localhost");
+        }
+
+        
+        ~RedisDataContext()
+        {
+            this.dataContext.Quit();
         }
 
         public virtual string InsertFile(string filePath, string uploadFilePath)
         {
-            RedisClient dataContext = GetDatabase();
             string val = GetFileContents(uploadFilePath);
             dataContext.Add<string>(filePath, val);
             return val;
         }
 
-        public virtual void InsertFile(string filePath, byte[] uploadFilePath)
-        {
-            RedisClient dataContext = GetDatabase();
-            dataContext.Add<byte[]>(filePath, uploadFilePath);
-        }
-
+        /// <summary>
+        /// Helper function for InsertFile(string filePath, string uploadFilePath)
+        /// </summary>
+        /// <param name="uploadFilePath"></param>
+        /// <returns></returns>
         private string GetFileContents(string uploadFilePath)
         {
             string[] fileContents = File.ReadAllLines(uploadFilePath);
@@ -41,10 +46,22 @@ namespace PolyglotDemo.Data
             }
             return returnValue;
         }
+        
+        /// <summary>
+        /// Adds a new key/value pair to redis with the key being the virtual file path and the data being a byte array
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="uploadFilePath"></param>
+        public virtual void InsertFile(string filePath, byte[] uploadFilePath)
+        {
+            dataContext.Add<byte[]>(filePath, uploadFilePath);
+            //dataContext.Save(); //will save the dataset to disk.. which I haven't configured permissions to do just yet
+        }
+
+        
 
         public virtual byte[] ReadFile(string filePath)
         {
-            RedisClient dataContext = GetDatabase();
             try
             {
                 return dataContext.Get(filePath);
@@ -57,8 +74,6 @@ namespace PolyglotDemo.Data
 
         public virtual void DeleteFile(string filePath)
         {
-            RedisClient dataContext = GetDatabase();
-
             dataContext.Remove(filePath);
         }
     }

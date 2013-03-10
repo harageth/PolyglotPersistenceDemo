@@ -18,27 +18,20 @@ namespace PolyglotDemo.Website
              * grab the username and grab the file structure for that username
              * Bind the filestructure to the page
              * */
-            if (!IsPostBack)
-            {
-                DatabaseInitialize.DatabaseInitializeFactory("Mongo");
-                DatabaseInitialize.DatabaseInitializeFactory("Redis");
-                MongoDataContext mongoContext = new MongoDataContext();
+            //DatabaseInitialize.DatabaseInitializeFactory("Mongo");
+            //DatabaseInitialize.DatabaseInitializeFactory("Redis");
 
-                RootDirectory directory = mongoContext.GetFileStructure("harageth").FirstOrDefault();
+            MongoDataContext mongoContext = new MongoDataContext();
+            
+            RootDirectory directory = mongoContext.GetFileStructure("harageth").FirstOrDefault();
+            
+            Session["directory"] = directory;
+            folders.DataSource = directory.folders;
+            folders.DataBind();
 
-                Session["directory"] = directory;
-
-                folders.DataSource = directory.folders;
-                folders.DataBind();
-
-                IEnumerable<string> dataBindFiles = directory.files;
-                files.DataSource = dataBindFiles;
-                files.DataBind();
-            }
-            else
-            {
-                
-            }
+            IEnumerable<string> dataBindFiles = directory.files;
+            files.DataSource = dataBindFiles;
+            files.DataBind();
         }
 
         protected void UploadFile_Click(object sender, EventArgs e)
@@ -49,15 +42,36 @@ namespace PolyglotDemo.Website
                 string contentType = uploadFileToDatabase.PostedFile.ContentType;
 
                 string fileName = uploadFileToDatabase.PostedFile.FileName;
-                Response.Write(fileName);
+                
                 byte[] byteArray = uploadFileToDatabase.FileBytes;
 
-                //var wrapper = new ArchivedFilesWrapper();
-
+                MongoDataContext mongoContext = new MongoDataContext();
+                
                 RedisDataContext redisContext = new RedisDataContext();
                 RootDirectory directory = (RootDirectory) Session["directory"];
-                redisContext.InsertFile(directory.un + virtualPath.Text+"/"+fileName, byteArray);
-                
+
+                if (directory.files == null)
+                {
+                    directory.files = new List<string>();
+                }
+                if (directory.AddFileToCWD(fileName, virtualPath.Text))
+                {
+                    mongoContext.UpdateFileStructure(directory);
+
+                    if (virtualPath.Text.Equals("/"))
+                    {
+                        redisContext.InsertFile(directory.un + virtualPath.Text + fileName, byteArray);
+                    }
+                    else
+                    {
+                        redisContext.InsertFile(directory.un + virtualPath.Text + "/" + fileName, byteArray);
+                    }
+                    //Response.Redirect("Default.aspx");   
+                }
+                else
+                {
+                    Response.Write("Upload failed due to file already existing... in path");//should probably check redis as well... 
+                }
             }
         }
 
@@ -79,6 +93,8 @@ namespace PolyglotDemo.Website
             files.DataBind();
 
             virtualPath.Text = virtualPath.Text+newCWDName;
+
+
         }
 
         protected void DownloadFile(object sender, EventArgs e)
@@ -88,6 +104,7 @@ namespace PolyglotDemo.Website
             string fileName = "";
             string ext = "";
             int val = value.Text.LastIndexOf(".");
+            
             if (val >= 0)
             {
                 fileName = value.Text.Substring(0, val);
@@ -95,17 +112,43 @@ namespace PolyglotDemo.Website
                 ext = value.Text.Substring(val, value.Text.Length-val);
                 
             }
+
             Response.ContentType = "application/octet-stream";
             Response.AppendHeader("Content-Disposition", "attachment; filename=" + value.Text);
             RootDirectory directory = (RootDirectory)Session["directory"];
-
-            Byte[] buffer = redisContext.ReadFile(directory.un + virtualPath.Text + value.Text);
-
-            string fileContents = System.Text.Encoding.Default.GetString(buffer);
+            Byte[] buffer;
+            if (virtualPath.Text.Equals("/"))
+            {
+                buffer = redisContext.ReadFile(directory.un + virtualPath.Text + value.Text);
+            }
+            else
+            {
+                buffer = redisContext.ReadFile(directory.un + virtualPath.Text + "/" + value.Text);
+            }
+            //string fileContents = System.Text.Encoding.Default.GetString(buffer);
             //Response.Write(fileContents);
-            //Response.Write(virtualPath.Text + value.Text);
+            
             Response.BinaryWrite(buffer);
             Response.End();
+        }
+
+        protected void CreateFolder(object sender, EventArgs e)
+        {
+            RootDirectory directory = (RootDirectory)Session["directory"];
+            
+            //have to make sure that the list of folders was initialized. If not then it needs to be newed.
+            if (directory.folders == null)
+            {
+                directory.folders = new List<Folder>();
+            }
+
+            Boolean val = directory.AddFolderToCWD("testFolder", virtualPath.Text);
+            directory.folders.Add(new Folder() { folderName="testFolder" });
+
+            MongoDataContext mongoContext = new MongoDataContext();
+
+            mongoContext.UpdateFileStructure(directory);
+            Response.Redirect("Default.aspx");
         }
     }
 }

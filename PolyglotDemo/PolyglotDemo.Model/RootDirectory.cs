@@ -13,16 +13,41 @@ namespace PolyglotDemo.Model
         public List<Folder> folders { get; set; }
         public List<String> files { get; set; }
 
-        public string GetPath(string fileName) //something like this anyway
+        
+        public Boolean AddFileToCWD(string fileName, string cwd)
         {
-            if (files.Contains(fileName))
+            //char[] delimeter = new char[] {'/'};
+            cwd = cwd + "/";
+            string [] path = cwd.Split('/');
+            
+            if (path.Length == 2)
             {
-                return "./"+fileName;
+                if (this.files.Count == 0)
+                {
+                    this.files = new List<string>();
+                    return true;
+                }
+
+                if(this.files.Contains(fileName))
+                {
+                    return true;
+                }
+                else
+                {
+                    this.files.Add(fileName);
+                    return true;
+                }
             }
             else
             {
-                return null;
+                //return false;
+                return this.folders.Find(x => x.folderName == path[1]).AddFileToCWD(fileName, path, 2);
             }
+        }
+
+        public Boolean AddFolderToCWD(string folderName, string cwd)
+        {
+            return false;
         }
     }
 }

@@ -11,7 +11,7 @@
     
     <form id="form1" runat="server">
     <div>
-        <asp:Label ID="virtualPath" runat="server" Text="./" ></asp:Label>
+        <asp:Label ID="virtualPath" runat="server" Text="/" ></asp:Label>
         <div>
                 <asp:FileUpload ID="uploadFileToDatabase" Enabled="true" runat="server" Visible="true" />
                 <asp:Button ID="uploadFile" Text="Upload File" runat="server" Enabled="true" OnClick="UploadFile_Click" />
@@ -39,6 +39,8 @@
             </asp:ListView>
 
         </ul>
+
+        <asp:Button ID="createFolder" Text="Create Folder" runat="server" OnClick="CreateFolder" />
 
     </form>
 

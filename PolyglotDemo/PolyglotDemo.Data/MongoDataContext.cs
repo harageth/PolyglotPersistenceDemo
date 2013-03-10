@@ -9,29 +9,32 @@ using MongoDB.Driver.Builders;
 
 namespace PolyglotDemo.Data
 {
-
-    internal class DonationView
-    {
-        public string _id { get; set; }
-        public Folder value { get; set; }
-    }
-
     public class MongoDataContext
     {
+        //connection string format - mongodb://[username:password@]hostname[:port][/[database][?options]]
         protected virtual string ConnectionString
         {
             get
             {
-                return "mongodb://localhost";
+                //return "mongodb://127.4.112.1:27017";
+                return "mongodb://localhost:27017";
             }
+        }
+
+        ~MongoDataContext()
+        {
+            
         }
 
         protected virtual MongoDatabase GetDatabase()
         {
-            const string connectionString = "mongodb://localhost";
+            //const string connectionString = "mongodb://admin:Y7UItTVlGTrw@127.4.112.1:27017/redis";
+            const string connectionString = "mongodb://localhost:27017";
+            //const string connectionString = "mongodb://admin:Y7UItTVlGTrw@redis-filecloud.rhcloud.com/redis";
             var client = new MongoClient(connectionString);
             var server = client.GetServer();
             return server.GetDatabase("Polyglot");
+            //return server.GetDatabase("redis");
         }
 
         private MongoCollection<TDataType> GetCollection<TDataType>()
@@ -46,10 +49,40 @@ namespace PolyglotDemo.Data
             return GetCollection<RootDirectory>().Find(query);
         }
 
-        public virtual void UpdateFileStructure(RootDirectory fileStructureUpdate)
+        public virtual void AppendFile(string fileName, string username)
+        {
+            var collection = GetCollection<RootDirectory>();
+            collection.Update(Query<RootDirectory>.EQ(x => x.un, username),
+                Update<RootDirectory>.Push(x => x.files, fileName));
+        }
+
+        public virtual void UpdateFileStructure(Folder fileStructureUpdate, string username)
         {
             //needs to be implemented
+
+            var collection = GetCollection<RootDirectory>();
+            collection.Update(Query<RootDirectory>.EQ(x => x.un, username), 
+                Update<RootDirectory>.Push(x => x.folders, fileStructureUpdate));
         }
+
+        public virtual void UpdateFileStructure(RootDirectory updateFileStructure)
+        {
+            //needs to be implemented
+
+            var collection = GetCollection<RootDirectory>();
+            collection.Save(updateFileStructure);
+        }
+
+
+        /*
+        public virtual void AddVolunteersToOrganization(string organizationName, Volunteer newVolunteer)
+        {
+            var collection = GetCollection<Organization>();
+            collection.Update(Query<Organization>.EQ(x => x.Name, organizationName),
+                               Update<Organization>.Push(x => x.Volunteers, newVolunteer));
+
+        }
+         * */
 
     }
 }

@@ -18,7 +18,7 @@ namespace PolyglotDemo.Data.Test
         {
             var dataContext = new RedisDataContext();
 
-            byte[] val = dataContext.ReadFile("./temp.txt");
+            byte[] val = dataContext.ReadFile("harageth./temp.txt");
             Assert.IsNotNull(val);
         }
 
@@ -27,8 +27,8 @@ namespace PolyglotDemo.Data.Test
         {
             RedisDataContext dataContext = new RedisDataContext();
 
-            dataContext.DeleteFile("./temp.txt");
-            Assert.IsNull(dataContext.ReadFile("./temp.txt"));
+            dataContext.DeleteFile("harageth./temp.txt");
+            Assert.IsNull(dataContext.ReadFile("harageth./temp.txt"));
         }
 
         [TestMethod]

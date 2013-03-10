@@ -62,7 +62,7 @@ namespace PolyglotDemo.Data.Test
         }
 
         [TestMethod]
-        public void WhenGetFileStructurThenHasSpecificFile()
+        public void WhenGetFileStructureThenHasSpecificFile()
         {
             var dataContext = new MongoDataContext();
             var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
@@ -70,5 +70,134 @@ namespace PolyglotDemo.Data.Test
             string fileCount = files.Find(x => x.Equals("temp.txt")); ;
             Assert.AreEqual<string>("temp.txt", fileCount);
         }
+
+        [TestMethod]
+        public void AddFileToStructureThen()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int items = result.files.Count;
+            dataContext.AppendFile("thirdFile.txt", "harageth");
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int appendedItems = result.files.Count;
+            Assert.AreNotEqual(items, appendedItems);
+        }
+
+        [TestMethod]
+        public void AddFileToStructureThenSomething()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int items = result.files.Count;
+            dataContext.AppendFile("thirdFile.txt", "harageth");
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int appendedItems = result.files.Count;
+            Assert.AreEqual(items+1, appendedItems);
+        }
+
+        [TestMethod]
+        public void AddFolderToStructureThenPreviousCountAndCurrentCountNotEqual()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int i = result.folders.Count;
+            Folder insertFolder = new Folder();
+            insertFolder.folderName = "ATestFolder";
+            result.folders.Add(insertFolder);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int j = result2.folders.Count;
+            Assert.AreNotEqual(i,j);
+
+        }
+
+        [TestMethod]
+        public void AddFolderToStructureThenListHasOneMoreItem()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int i = result.folders.Count;
+            Folder insertFolder = new Folder();
+            insertFolder.folderName = "ATestFolder";
+            result.folders.Add(insertFolder);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int j = result2.folders.Count;
+            Assert.AreEqual(i+1, j);
+        }
+
+        [TestMethod]
+        public void AddFolderToStructureThenListHasSpecificItem()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int i = result.folders.Count;
+            Folder insertFolder = new Folder();
+            insertFolder.folderName = "ATestFolder";
+            result.folders.Add(insertFolder);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            Folder newFolder = result2.folders.Find(x => x.folderName == "ATestFolder");
+            Assert.AreEqual<string>(newFolder.folderName, "ATestFolder");
+        }
+
+        //////////////////////////////
+
+        [TestMethod]
+        public void AddFileToStructureThenPreviousCountAndCurrentCountNotEqual()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int i = result.files.Count;
+            string insertFile = "ATestFile.txt";
+            result.files.Add(insertFile);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int j = result2.files.Count;
+            Assert.AreNotEqual(i, j);
+
+        }
+
+        [TestMethod]
+        public void AddFileToStructureThenListHasOneMoreItem()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int i = result.files.Count;
+            string insertFile = "ATestFile.txt";
+            result.files.Add(insertFile);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            int j = result2.files.Count;
+            Assert.AreEqual(i + 1, j);
+        }
+
+        [TestMethod]
+        public void AddFileToStructureThenListHasSpecificItem()
+        {
+            var dataContext = new MongoDataContext();
+            var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            string insertFolder = "ATestFile.txt";
+            result.files.Add(insertFolder);
+
+            dataContext.UpdateFileStructure(result);
+
+            var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
+            string newFile = result2.files.Find(x => x == "ATestFile.txt");
+            Assert.AreEqual<string>(newFile, "ATestFile.txt");
+        }
+
+
+
     }
 }
