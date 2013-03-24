@@ -8,6 +8,7 @@ using PolyglotDemo.Model;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using ServiceStack.Redis;
+using System.Security.Cryptography;
 
 namespace PolyglotDemo.Data.Test
 {
@@ -42,10 +43,16 @@ namespace PolyglotDemo.Data.Test
             var directory = database.GetCollection<RootDirectory>("rootdirectory");
             directory.Remove(new QueryDocument());
 
+            byte[] inputBytes = System.Text.Encoding.Unicode.GetBytes("password");//will need to change to being the user input
+            SHA256Managed hashstring = new SHA256Managed();
+            byte[] dbHash = hashstring.ComputeHash(inputBytes);
+            
+
             directory.Insert(new RootDirectory()
             {
                 _id = ObjectId.GenerateNewId().ToString(),
                 un = "harageth",
+                pw = System.Text.Encoding.UTF8.GetString(dbHash),//need to encrypt this password
                 folders = new List<Folder>() { new Folder() { folderName = "firstFolder", files = new List<string>() { "temp1.txt", "file1.txt" } }, new Folder() { folderName = "secondFolder", files = new List<string>() { "temp2.txt", "file2.txt" } }, new Folder() { folderName = "thirdFolder", files = new List<string>() { "temp3.txt", "file3.txt" } } },
                 //files = new List<string>( ) { "temp.txt", "file.txt" }
                 

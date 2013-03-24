@@ -20,18 +20,25 @@ namespace PolyglotDemo.Website
              * */
             //DatabaseInitialize.DatabaseInitializeFactory("Mongo");
             //DatabaseInitialize.DatabaseInitializeFactory("Redis");
-
-            MongoDataContext mongoContext = new MongoDataContext();
             
-            RootDirectory directory = mongoContext.GetFileStructure("harageth").FirstOrDefault();
-            
-            Session["directory"] = directory;
-            folders.DataSource = directory.folders;
-            folders.DataBind();
+            if (!IsPostBack)//so pretty much everything is a postback. So I need to figure out a way to simply traverse my file tree. I need to go back to storing the CWD in the session as well as the whole document. 
+            {
+                MongoDataContext mongoContext = new MongoDataContext();
 
-            IEnumerable<string> dataBindFiles = directory.files;
-            files.DataSource = dataBindFiles;
-            files.DataBind();
+                RootDirectory directory = mongoContext.GetFileStructure("harageth").FirstOrDefault();
+
+                Session["directory"] = directory;
+                folders.DataSource = directory.folders;
+                folders.DataBind();
+
+                IEnumerable<string> dataBindFiles = directory.files;
+                files.DataSource = dataBindFiles;
+                files.DataBind();
+            }
+            else
+            {
+                Response.Write("Not a postback");
+            }
         }
 
         protected void UploadFile_Click(object sender, EventArgs e)
@@ -119,7 +126,7 @@ namespace PolyglotDemo.Website
             Byte[] buffer;
             if (virtualPath.Text.Equals("/"))
             {
-                buffer = redisContext.ReadFile(directory.un + virtualPath.Text + value.Text);
+                buffer = redisContext.ReadFile(directory.un + virtualPath.Text + "/" + value.Text);
             }
             else
             {
@@ -129,6 +136,7 @@ namespace PolyglotDemo.Website
             //Response.Write(fileContents);
             
             Response.BinaryWrite(buffer);
+            //Response.Write(directory.un+virtualPath.Text+value.Text);
             Response.End();
         }
 

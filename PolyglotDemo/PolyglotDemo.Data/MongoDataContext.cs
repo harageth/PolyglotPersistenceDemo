@@ -72,17 +72,5 @@ namespace PolyglotDemo.Data
             var collection = GetCollection<RootDirectory>();
             collection.Save(updateFileStructure);
         }
-
-
-        /*
-        public virtual void AddVolunteersToOrganization(string organizationName, Volunteer newVolunteer)
-        {
-            var collection = GetCollection<Organization>();
-            collection.Update(Query<Organization>.EQ(x => x.Name, organizationName),
-                               Update<Organization>.Push(x => x.Volunteers, newVolunteer));
-
-        }
-         * */
-
     }
 }

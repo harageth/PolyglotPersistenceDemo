@@ -67,7 +67,7 @@ namespace PolyglotDemo.Data.Test
             var dataContext = new MongoDataContext();
             var result = dataContext.GetFileStructure("harageth").FirstOrDefault();
             List<string> files = result.files;
-            string fileCount = files.Find(x => x.Equals("temp.txt")); ;
+            string fileCount = files.Find(x => x.Equals("temp.txt"));
             Assert.AreEqual<string>("temp.txt", fileCount);
         }
 

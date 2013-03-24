@@ -10,6 +10,7 @@ namespace PolyglotDemo.Model
     {
         public string _id { get; set; }
         public string un { get; set; }
+        public string pw { get; set; }
         public List<Folder> folders { get; set; }
         public List<String> files { get; set; }
 

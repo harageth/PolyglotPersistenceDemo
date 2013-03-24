@@ -26,8 +26,9 @@ and it should work fine as the databases should be initialized on your local sys
 
 
 Known Issues:
-Linkbuttons for files that are not in the base directory return the wrong value to their eventhandler.
+Linkbuttons... they are somewhat fixed right now
+Linkbuttons for files that are not in the base directory return the wrong value to their eventhandler. (I am going to be refactoring the interface between the UI and the database to be cleaner [hopefully] and just overall work better)
 Create Folder has a hard coded folder name that it is adding to the CWD in the file structure.
-Loging into the system (there will only ever be two users able to login to this system. Myself and a guest. Guests will have a TTL on their data of 30 min)
 Error checking (currently there aren't any try/catches I think anywhere in any of my solutions. So please play nice for now.)
 Limit on file upload size based on IIS server configurations (there is a n HTTP limit as well since all of this is being done through that protocal.. but again this is a demo app and not meant for production)
+Guest access needs to be defined and ability to set a TTL on data needs to be added.
