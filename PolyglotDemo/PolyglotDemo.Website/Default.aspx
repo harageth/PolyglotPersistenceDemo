@@ -40,6 +40,7 @@
 
         </ul>
 
+        <asp:TextBox ID="newFolder" runat="server" ></asp:TextBox>
         <asp:Button ID="createFolder" Text="Create Folder" runat="server" OnClick="CreateFolder" />
 
     </form>

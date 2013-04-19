@@ -40,9 +40,31 @@ namespace PolyglotDemo.Model
             }
         }
 
-        public void AddFolderToCWD()
+        public Boolean AddFolderToCWD(string folderName, string[] path, int index)
         {
 
+            if (this.folders == null)
+            {
+                this.folders = new List<Folder>();
+                this.folders.Add(new Folder() { folderName = folderName });
+                return true;
+            }
+            else if (index == path.Length - 1)
+            {
+                if (this.folders.Exists(x => x.folderName == folderName))
+                {
+                    return false;
+                }
+                else
+                {
+                    this.folders.Add(new Folder() { folderName = folderName });
+                    return true;
+                }
+            }
+            else
+            {
+                return this.folders.Find(x => x.folderName == path[index]).AddFolderToCWD(folderName, path, index++);
+            }
         }
     }
 }

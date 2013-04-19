@@ -54,7 +54,7 @@ namespace PolyglotDemo.Data.Test
                 un = "harageth",
                 pw = System.Text.Encoding.UTF8.GetString(dbHash),//need to encrypt this password
                 folders = new List<Folder>() { new Folder() { folderName = "firstFolder", files = new List<string>() { "temp1.txt", "file1.txt" } }, new Folder() { folderName = "secondFolder", files = new List<string>() { "temp2.txt", "file2.txt" } }, new Folder() { folderName = "thirdFolder", files = new List<string>() { "temp3.txt", "file3.txt" } } },
-                //files = new List<string>( ) { "temp.txt", "file.txt" }
+                files = new List<string>( ) { "temp.txt", "file.txt" }
                 
             });
 

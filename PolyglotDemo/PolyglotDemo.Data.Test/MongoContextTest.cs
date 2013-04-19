@@ -79,7 +79,7 @@ namespace PolyglotDemo.Data.Test
             int items = result.files.Count;
             dataContext.AppendFile("thirdFile.txt", "harageth");
             var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
-            int appendedItems = result.files.Count;
+            int appendedItems = result2.files.Count;
             Assert.AreNotEqual(items, appendedItems);
         }
 
@@ -91,7 +91,7 @@ namespace PolyglotDemo.Data.Test
             int items = result.files.Count;
             dataContext.AppendFile("thirdFile.txt", "harageth");
             var result2 = dataContext.GetFileStructure("harageth").FirstOrDefault();
-            int appendedItems = result.files.Count;
+            int appendedItems = result2.files.Count;
             Assert.AreEqual(items+1, appendedItems);
         }
 

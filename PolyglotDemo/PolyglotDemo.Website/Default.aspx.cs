@@ -8,10 +8,20 @@ using PolyglotDemo.Data;
 using PolyglotDemo.Data.Test;
 using PolyglotDemo.Model;
 
+
+/*
+ * Still needs doing:
+ * Need to refactor the ChangeCWD_Event because it is not allowing going down more than one directory
+ * Need to refactor the Page_Load or just rethink how I am displaying the data to the users. Right now it is not working correctly.
+ * 
+ * */
+
+
 namespace PolyglotDemo.Website
 {
     public partial class WebForm1 : System.Web.UI.Page
     {
+        
         protected void Page_Load(object sender, EventArgs e)
         {
             /*
@@ -61,18 +71,31 @@ namespace PolyglotDemo.Website
                 {
                     directory.files = new List<string>();
                 }
-                if (directory.AddFileToCWD(fileName, virtualPath.Text))
+
+                string virPath = virtualPath.Text;
+                if (virPath.Split('/')[1].Equals(""))
+                {
+                    //virPath;
+                }
+                else
+                {
+                    virPath = virPath + "/";
+                }
+                
+                if (directory.AddFileToCWD(fileName, virPath))
                 {
                     mongoContext.UpdateFileStructure(directory);
 
-                    if (virtualPath.Text.Equals("/"))
+
+                    redisContext.InsertFile(directory.un + virPath + fileName, byteArray);
+                    /*if (virtualPath.Text.Equals("/"))
                     {
-                        redisContext.InsertFile(directory.un + virtualPath.Text + fileName, byteArray);
+                        
                     }
                     else
                     {
                         redisContext.InsertFile(directory.un + virtualPath.Text + "/" + fileName, byteArray);
-                    }
+                    }*/
                     //Response.Redirect("Default.aspx");   
                 }
                 else
@@ -84,6 +107,18 @@ namespace PolyglotDemo.Website
 
         protected void ChangeCWD_Click(object sender, EventArgs e)
         {
+            /*
+             * What do we need to do here?
+             * We have our CWD and we need to change to a new CWD... Whether that is going back a directory or if we are moving forward a directory
+             * 
+             * It might be prudent to change the dataModel to hold a parent.. Not sure how that would look in the DB though. Let me think about it.
+             * It might also be prudent to store the CWD in Session for easy access.
+             * 
+             * 
+             * */
+
+
+
             LinkButton val = (LinkButton) sender;
             string newCWDName = val.Text;
             RootDirectory directory = (RootDirectory)Session["directory"];
@@ -150,13 +185,30 @@ namespace PolyglotDemo.Website
                 directory.folders = new List<Folder>();
             }
 
-            Boolean val = directory.AddFolderToCWD("testFolder", virtualPath.Text);
-            directory.folders.Add(new Folder() { folderName="testFolder" });
+            string virPath = virtualPath.Text;
+            if (virPath.Split('/')[1].Equals(""))
+            {
+                //virPath;
+            }
+            else
+            {
+                virPath = virPath + "/";
+            }
+            Boolean val = directory.AddFolderToCWD(newFolder.Text, virPath);
+            if (val)
+            {
+                //directory.folders.Add(new Folder() { folderName = newFolder.Text });
 
-            MongoDataContext mongoContext = new MongoDataContext();
+                MongoDataContext mongoContext = new MongoDataContext();
 
-            mongoContext.UpdateFileStructure(directory);
-            Response.Redirect("Default.aspx");
+                mongoContext.UpdateFileStructure(directory);
+            }
+            else
+            {
+                Response.Write("Didn't add the new folder");
+                //was unable to add the folder to the CWD
+            }
+//            Response.Redirect("Default.aspx");
         }
     }
 }

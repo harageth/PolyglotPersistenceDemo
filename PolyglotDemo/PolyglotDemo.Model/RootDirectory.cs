@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace PolyglotDemo.Model
 {
@@ -18,7 +19,7 @@ namespace PolyglotDemo.Model
         public Boolean AddFileToCWD(string fileName, string cwd)
         {
             //char[] delimeter = new char[] {'/'};
-            cwd = cwd + "/";
+            //cwd = cwd + "/";
             string [] path = cwd.Split('/');
             
             if (path.Length == 2)
@@ -31,7 +32,7 @@ namespace PolyglotDemo.Model
 
                 if(this.files.Contains(fileName))
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
@@ -48,7 +49,42 @@ namespace PolyglotDemo.Model
 
         public Boolean AddFolderToCWD(string folderName, string cwd)
         {
-            return false;
+            //char[] delimeter = new char[] {'/'};
+            //cwd = cwd + "/";
+            string[] path = cwd.Split('/');
+
+            if (path.Length == 2)
+            {
+                if (this.folders.Count == 0)
+                {
+                    this.folders = new List<Folder>();
+                    return true;
+                }
+
+                if (this.folders.Exists(x => x.folderName == folderName))
+                {
+                    return true;
+                    //return false;
+                }
+                else
+                {
+                    //return false;
+                    this.folders.Add(new Folder() { folderName = folderName });
+                    return true;
+                }
+            }
+            else
+            {
+                //return false;
+                
+                return this.folders.Find(x => x.folderName == path[1]).AddFolderToCWD(folderName, path, 2);
+            }
+        }
+
+        //stubbed out for now
+        protected Folder GetCWD(string folderName, string CWD)
+        {
+            return null;
         }
     }
 }
